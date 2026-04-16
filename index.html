@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Sudoku</title>
+  <style>
+    /* ── Tokens ───────────────────────────────────────── */
+    :root {
+      --bg:           #F7F7F5;
+      --surface:      #FFFFFF;
+      --surface2:     #F0F0EE;
+      --border:       1px solid #E0DED9;
+      --border-strong:2px solid #1A1A1A;
+      --text:         #1A1A1A;
+      --text-muted:   #9B9894;
+      --accent:       #4F6EF7;
+      --accent-dim:   #EEF1FE;
+      --given:        #1A1A1A;
+      --player:       #4F6EF7;
+      --error-text:   #D93025;
+      --error-bg:     #FEF0EE;
+      --hi-cell:      #E8ECFD;
+      --hi-peer:      #F2F1EF;
+      --hi-same:      #D1D8FB;
+      --note-col:     #9B9894;
+      --radius:       10px;
+      --t:            180ms ease;
+    }
+    [data-theme="dark"] {
+      --bg:           #141414;
+      --surface:      #1E1E1E;
+      --surface2:     #272727;
+      --border:       1px solid #2E2E2E;
+      --border-strong:2px solid #DEDEDE;
+      --text:         #E6E4DF;
+      --text-muted:   #666360;
+      --accent:       #7B93F9;
+      --accent-dim:   #222740;
+      --given:        #E6E4DF;
+      --player:       #7B93F9;
+      --error-text:   #F0706A;
+      --error-bg:     #2E1614;
+      --hi-cell:      #21274A;
+      --hi-peer:      #202020;
+      --hi-same:      #2A3260;
+      --note-col:     #666360;
+    }
+
+    /* ── Reset ────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background var(--t), color var(--t);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── Layout ───────────────────────────────────────── */
+    .page { width: 100%; max-width: 440px; padding: 0 14px; }
+
+    /* ── Header ───────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0 14px;
+    }
+    header h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+    }
+    .hdr-right { display: flex; gap: 6px; align-items: center; }
+
+    /* ── Buttons ──────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      background: var(--surface2);
+      color: var(--text);
+      border: none;
+      border-radius: var(--radius);
+      padding: 7px 13px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--t), opacity var(--t), transform 80ms;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .btn:hover { background: var(--hi-same); }
+    .btn:active { transform: scale(0.96); }
+    .btn:disabled { opacity: 0.28; cursor: default; pointer-events: none; }
+    .btn-icon { padding: 7px 9px; font-size: 1rem; }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-accent:hover { opacity: 0.88; background: var(--accent); }
+
+    /* ── Difficulty tabs ──────────────────────────────── */
+    .diff-row {
+      display: flex; gap: 5px;
+      padding-bottom: 14px;
+    }
+    .diff-btn {
+      flex: 1;
+      background: var(--surface2);
+      color: var(--text-muted);
+      border: none;
+      border-radius: var(--radius);
+      padding: 7px 4px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--t);
+    }
+    .diff-btn:hover { color: var(--text); }
+    .diff-btn.active { background: var(--accent); color: #fff; }
+
+    /* ── Grid ─────────────────────────────────────────── */
+    #grid {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: grid;
+      grid-template: repeat(9,1fr) / repeat(9,1fr);
+      border: var(--border-strong);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--bg); /* shows as thin gap between cells */
+    }
+    .cell {
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      position: relative;
+      font-size: clamp(14px, 4.5vw, 22px);
+      font-weight: 600;
+      color: var(--given);
+      transition: background var(--t);
+      user-select: none;
+      border-right:  var(--border);
+      border-bottom: var(--border);
+    }
+    .cell:nth-child(9n)        { border-right: none; }
+    .cell[data-row="8"]        { border-bottom: none; }
+    /* thick 3×3 box borders */
+    .cell[data-col="2"]        { border-right: var(--border-strong); }
+    .cell[data-col="5"]        { border-right: var(--border-strong); }
+    .cell[data-row="2"]        { border-bottom: var(--border-strong); }
+    .cell[data-row="5"]        { border-bottom: var(--border-strong); }
+
+    /* States */
+    .cell.given     { cursor: default; }
+    .cell.player    { color: var(--player); }
+    .cell.wrong     { color: var(--error-text) !important; background: var(--error-bg) !important; }
+    .cell.selected  { background: var(--hi-cell) !important; }
+    .cell.peer      { background: var(--hi-peer); }
+    .cell.same-num  { background: var(--hi-same); }
+
+    /* Notes sub-grid */
+    .cell.has-notes {
+      display: grid;
+      grid-template: repeat(3,1fr) / repeat(3,1fr);
+      padding: 1px;
+      font-size: 0;
+    }
+    .note-d {
+      font-size: clamp(6px, 1.6vw, 9px);
+      font-weight: 500;
+      color: var(--note-col);
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+
+    /* ── Controls strip ───────────────────────────────── */
+    .ctrl-strip {
+      display: flex; gap: 5px;
+      padding: 11px 0 0;
+    }
+    .ctrl-strip .btn { flex: 1; font-size: 0.78rem; padding: 8px 4px; }
+    .btn.notes-on { background: var(--accent); color: #fff; }
+    .hint-badge {
+      font-size: 0.68rem; opacity: 0.7;
+      background: rgba(0,0,0,0.08);
+      border-radius: 20px;
+      padding: 1px 5px;
+    }
+    [data-theme="dark"] .hint-badge { background: rgba(255,255,255,0.12); }
+
+    /* ── Numpad ───────────────────────────────────────── */
+    #numpad {
+      display: grid;
+      grid-template-columns: repeat(9,1fr);
+      gap: 5px;
+      padding: 9px 0 0;
+    }
+    .num-btn {
+      aspect-ratio: 1;
+      font-size: clamp(13px, 4vw, 20px);
+      font-weight: 700;
+      padding: 0;
+    }
+    .num-btn:active { transform: scale(0.92); }
+    .num-btn.done   { opacity: 0.22; cursor: default; pointer-events: none; }
+
+    /* ── Status bar ───────────────────────────────────── */
+    .status-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0 0;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .status-left  { display: flex; gap: 14px; align-items: center; }
+    .s-item       { display: flex; align-items: center; gap: 4px; }
+    .s-timer      { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text); }
+    .s-mistakes   { font-weight: 600; color: var(--error-text); }
+
+    /* ── Footer actions ───────────────────────────────── */
+    .footer-row {
+      display: flex; gap: 5px;
+      padding: 10px 0 28px;
+    }
+    .footer-row .btn { flex: 1; justify-content: center; }
+
+    /* ── Modals ───────────────────────────────────────── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(3px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+      opacity: 0; pointer-events: none;
+      transition: opacity var(--t);
+      padding: 16px;
+    }
+    .overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 28px 22px 22px;
+      max-width: 340px; width: 100%;
+      text-align: center;
+      transform: translateY(16px) scale(0.97);
+      transition: transform var(--t);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .overlay.open .modal { transform: none; }
+    .modal h2 { font-size: 1.3rem; margin-bottom: 6px; }
+    .modal-sub { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 18px; }
+    .modal .btn { width: 100%; margin-top: 7px; }
+
+    /* Win modal */
+    .win-icon { font-size: 2.6rem; margin-bottom: 4px; }
+    .win-time {
+      font-size: 2.2rem; font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -1px;
+      margin: 4px 0 8px;
+    }
+    .win-tag {
+      display: inline-block;
+      background: var(--accent-dim); color: var(--accent);
+      font-size: 0.78rem; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+      margin-bottom: 18px;
+    }
+
+    /* Stats modal */
+    .stats-4 {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px; margin: 14px 0;
+    }
+    .stat-card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 12px 8px;
+    }
+    .stat-v { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+    .stat-l { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+    .bt-section { text-align: left; margin-top: 12px; }
+    .bt-title {
+      font-size: 0.72rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .bt-row {
+      display: flex; justify-content: space-between;
+      padding: 7px 0;
+      font-size: 0.85rem;
+      border-bottom: var(--border);
+    }
+    .bt-row:last-child { border-bottom: none; }
+    .bt-val { font-weight: 700; color: var(--accent); }
+
+    /* ── Toast ────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: var(--text); color: var(--bg);
+      padding: 9px 18px;
+      border-radius: 24px;
+      font-size: 0.83rem; font-weight: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 300;
+      white-space: nowrap;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Win animation ────────────────────────────────── */
+    @keyframes gridPop {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.022); }
+      70%  { transform: scale(0.99); }
+      100% { transform: scale(1); }
+    }
+    .pop { animation: gridPop 0.45s ease forwards; }
+
+    /* ── Loading overlay ──────────────────────────────── */
+    #loader {
+      position: absolute; inset: 0;
+      background: rgba(var(--bg-rgb, 247,247,245), 0.7);
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 4px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+      font-size: 0.85rem; color: var(--text-muted);
+    }
+    #loader.show { opacity: 1; pointer-events: all; }
+    .grid-wrap { position: relative; }
+
+    /* ── Responsive: compact on very small screens ────── */
+    @media (max-height: 700px) {
+      header { padding-top: 12px; padding-bottom: 10px; }
+      .ctrl-strip { padding-top: 8px; }
+      #numpad { padding-top: 7px; gap: 4px; }
+      .status-bar { padding-top: 7px; }
+      .footer-row { padding-top: 7px; padding-bottom: 16px; }
+    }
+
+    /* ── Start screen ─────────────────────────────────── */
+    #startScreen {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 150;
+      padding: 24px 20px;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    #startScreen.hiding {
+      opacity: 0; transform: scale(0.97); pointer-events: none;
+    }
+    #startScreen.hidden { display: none; }
+
+    .ss-theme-btn {
+      position: absolute; top: 20px; right: 20px;
+    }
+    .ss-inner {
+      width: 100%; max-width: 340px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .ss-logo {
+      font-size: 3rem; font-weight: 800; letter-spacing: -2px;
+      color: var(--text); margin-bottom: 6px;
+    }
+    .ss-tagline {
+      font-size: 0.88rem; color: var(--text-muted);
+      text-align: center; line-height: 1.55; margin-bottom: 38px;
+    }
+    .ss-label {
+      font-size: 0.72rem; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      align-self: flex-start; margin-bottom: 8px;
+    }
+    .ss-diff {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 6px; width: 100%; margin-bottom: 22px;
+    }
+    .ss-diff-btn {
+      background: var(--surface2); color: var(--text-muted);
+      border: none; border-radius: var(--radius);
+      padding: 10px 4px; font-size: 0.82rem; font-weight: 500;
+      cursor: pointer; transition: all var(--t); text-align: center;
+    }
+    .ss-diff-btn:hover { color: var(--text); }
+    .ss-diff-btn.active { background: var(--accent); color: #fff; }
+    .ss-play {
+      width: 100%; padding: 15px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: var(--radius);
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      transition: opacity var(--t), transform 80ms;
+      margin-bottom: 8px;
+    }
+    .ss-play:hover { opacity: 0.88; }
+    .ss-play:active { transform: scale(0.98); }
+    .ss-about-btn {
+      width: 100%; padding: 11px;
+      background: transparent; color: var(--text-muted);
+      border: none; border-radius: var(--radius);
+      font-size: 0.85rem; font-weight: 500; cursor: pointer;
+      transition: color var(--t);
+    }
+    .ss-about-btn:hover { color: var(--text); }
+
+    /* ── About modal ──────────────────────────────────── */
+    #aboutOverlay .modal {
+      max-height: 82vh; overflow-y: auto; text-align: left;
+      padding-bottom: 16px;
+    }
+    .about-head {
+      display: flex; align-items: center; gap: 13px; margin-bottom: 18px;
+    }
+    .about-avatar {
+      width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+      background: var(--accent-dim);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+    }
+    .about-name { font-size: 1rem; font-weight: 700; }
+    .about-role { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+    .about-block {
+      background: var(--surface2); border-radius: var(--radius);
+      padding: 13px 14px; font-size: 0.83rem; line-height: 1.65;
+      color: var(--text); margin-bottom: 8px;
+    }
+    .about-block strong { color: var(--accent); font-weight: 600; }
+    .about-block p + p { margin-top: 9px; }
+    .about-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+    .about-tag {
+      background: var(--accent-dim); color: var(--accent);
+      font-size: 0.7rem; font-weight: 600;
+      padding: 3px 9px; border-radius: 20px;
+    }
+    .about-linkedin {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; padding: 11px;
+      background: var(--accent); color: #fff;
+      border-radius: var(--radius);
+      text-decoration: none; font-size: 0.85rem; font-weight: 600;
+      transition: opacity var(--t); margin-bottom: 6px;
+    }
+    .about-linkedin:hover { opacity: 0.88; }
+  </style>
+</head>
+<body>
+
+<!-- ─── Start screen ──────────────────────────────── -->
+<div id="startScreen">
+  <button class="btn btn-icon ss-theme-btn" id="ssThemeBtn" title="Toggle theme" aria-label="Toggle theme">&#x1F319;</button>
+  <div class="ss-inner">
+    <div class="ss-logo">Sudoku</div>
+    <p class="ss-tagline">Clean. Ad-free. No pop-ups, no accounts,<br>no nonsense. Just the puzzle.</p>
+    <div class="ss-label">Difficulty</div>
+    <div class="ss-diff" role="group" aria-label="Select difficulty">
+      <button class="ss-diff-btn active" data-diff="easy">Easy</button>
+      <button class="ss-diff-btn"        data-diff="medium">Medium</button>
+      <button class="ss-diff-btn"        data-diff="hard">Hard</button>
+      <button class="ss-diff-btn"        data-diff="expert">Expert</button>
+    </div>
+    <button class="ss-play" id="ssPlayBtn">&#x25B6;&#xFE0F;&nbsp; Play</button>
+    <button class="ss-about-btn" id="ssAboutBtn">About this app</button>
+  </div>
+</div>
+
+<!-- ─── App shell ─────────────────────────────────── -->
+<div class="page">
+
+  <header>
+    <button class="btn btn-icon" id="exitBtn" title="Exit to home" aria-label="Exit game">&#x2190;</button>
+    <h1>Sudoku</h1>
+    <div class="hdr-right">
+      <button class="btn btn-icon" id="statsBtn" title="Statistics" aria-label="Statistics">&#x1F4CA;</button>
+      <button class="btn btn-icon" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">&#x1F319;</button>
+    </div>
+  </header>
+
+  <div class="diff-row" role="group" aria-label="Difficulty">
+    <button class="diff-btn active" data-diff="easy">Easy</button>
+    <button class="diff-btn"        data-diff="medium">Medium</button>
+    <button class="diff-btn"        data-diff="hard">Hard</button>
+    <button class="diff-btn"        data-diff="expert">Expert</button>
+  </div>
+
+  <div class="grid-wrap">
+    <div id="grid" role="grid" aria-label="Sudoku board"></div>
+    <div id="loader">Generating&hellip;</div>
+  </div>
+
+  <div class="ctrl-strip">
+    <button class="btn" id="undoBtn"  disabled title="Undo (Ctrl+Z)">&#x21A9; Undo</button>
+    <button class="btn" id="redoBtn"  disabled title="Redo (Ctrl+Y)">&#x21AA; Redo</button>
+    <button class="btn" id="notesBtn" title="Toggle notes (N)">&#x270F;&#xFE0F; Notes</button>
+    <button class="btn" id="hintBtn"  title="Use hint (H)">
+      &#x1F4A1; Hint <span class="hint-badge" id="hintBadge">3</span>
+    </button>
+    <button class="btn" id="eraseBtn" title="Erase (Del)">&#x232B; Erase</button>
+  </div>
+
+  <div id="numpad" role="group" aria-label="Number input"></div>
+
+  <div class="status-bar">
+    <div class="status-left">
+      <span class="s-item">&#x23F1; <span class="s-timer" id="timerEl">0:00</span></span>
+      <span class="s-item">&#x2715; <span class="s-mistakes" id="mistakesEl">0</span></span>
+    </div>
+    <button class="btn btn-accent" id="newGameBtn">New Game</button>
+  </div>
+
+  <div class="footer-row"></div>
+
+</div><!-- .page -->
+
+<!-- ─── Win modal ────────────────────────────────────── -->
+<div class="overlay" id="winOverlay" role="dialog" aria-modal="true" aria-label="Puzzle solved">
+  <div class="modal">
+    <div class="win-icon">&#x1F389;</div>
+    <h2>Puzzle Solved!</h2>
+    <div class="win-time" id="winTimeEl">0:00</div>
+    <div class="win-tag" id="winTagEl">Easy</div>
+    <p class="modal-sub" id="winMsgEl">Nice work!</p>
+    <button class="btn btn-accent" id="winNewBtn">Play Again</button>
+    <button class="btn"            id="winCloseBtn">Close</button>
+  </div>
+</div>
+
+<!-- ─── Stats modal ───────────────────────────────────── -->
+<div class="overlay" id="statsOverlay" role="dialog" aria-modal="true" aria-label="Statistics">
+  <div class="modal">
+    <h2>Statistics</h2>
+    <div class="stats-4" id="statsCards"></div>
+    <div class="bt-section">
+      <div class="bt-title">Best Times</div>
+      <div id="btRows"></div>
+    </div>
+    <button class="btn" id="statsCloseBtn" style="margin-top:14px">Close</button>
+  </div>
+</div>
+
+<!-- ─── About modal ───────────────────────────────────── -->
+<div class="overlay" id="aboutOverlay" role="dialog" aria-modal="true" aria-label="About">
+  <div class="modal">
+    <div class="about-head">
+      <div class="about-avatar">&#x1F9E9;</div>
+      <div>
+        <div class="about-name">Utsav Kejriwal</div>
+        <div class="about-role">MBA Candidate &middot; Vanderbilt Owen &rsquo;27</div>
+      </div>
+    </div>
+
+    <div class="about-block">
+      <p><strong>Why this exists:</strong> Every free Sudoku site on the internet apparently needs 12 banner ads, an autoplay video, and a pop-up asking you to subscribe to a newsletter. You don&rsquo;t want any of that. Nobody does.</p>
+      <p>So I built this &mdash; clean, ad-free Sudoku. No accounts, no tracking, no cookie banners. Just the 9&times;9 grid and your brain. Vibe-coded with Claude in an afternoon because I was genuinely annoyed.</p>
+    </div>
+
+    <div class="about-block">
+      <p>Before business school, I spent four years in P&amp;C insurance working across actuarial analytics, pricing, and portfolio strategy at AXA XL, Bajaj Allianz, and WTW &mdash; turning messy data into real business decisions.</p>
+      <p>These days I study Strategy, Finance &amp; Marketing at Vanderbilt Owen by day, and tinker with Python, SQL, and whatever new tool makes building things faster by night. This app is one of those experiments.</p>
+    </div>
+
+    <div class="about-tags">
+      <span class="about-tag">HTML &middot; CSS &middot; Vanilla JS</span>
+      <span class="about-tag">Zero frameworks</span>
+      <span class="about-tag">Powered by frustration</span>
+    </div>
+
+    <a class="about-linkedin" href="https://linkedin.com/in/utsavkejriwal" target="_blank" rel="noopener">
+      &#x1F517;&nbsp; linkedin.com/in/utsavkejriwal
+    </a>
+    <button class="btn" id="aboutCloseBtn" style="width:100%;justify-content:center">Close</button>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  SUDOKU ENGINE
+// ════════════════════════════════════════════════════════════
+
+function emptyBoard() {
+  return Array.from({ length: 9 }, () => new Array(9).fill(0));
+}
+
+function isPlaceable(board, r, c, n) {
+  if (board[r].includes(n)) return false;
+  for (let i = 0; i < 9; i++) if (board[i][c] === n) return false;
+  const br = r - r % 3, bc = c - c % 3;
+  for (let dr = 0; dr < 3; dr++)
+    for (let dc = 0; dc < 3; dc++)
+      if (board[br + dr][bc + dc] === n) return false;
+  return true;
+}
+
+const DIGITS = [1,2,3,4,5,6,7,8,9];
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function fillSolution(board) {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (board[r][c] === 0) {
+        for (const n of shuffle(DIGITS.slice())) {
+          if (isPlaceable(board, r, c, n)) {
+            board[r][c] = n;
+            if (fillSolution(board)) return true;
+            board[r][c] = 0;
+          }
+        }
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+// Returns 0, 1 or 2 (stops counting at `cap`)
+function countSols(board, cap = 2) {
+  let count = 0;
+  (function solve(b) {
+    if (count >= cap) return;
+    let br = -1, bc = -1, best = 10;
+    // Find cell with fewest candidates (MRV heuristic — much faster)
+    for (let r = 0; r < 9 && best > 1; r++) {
+      for (let c = 0; c < 9 && best > 1; c++) {
+        if (b[r][c] !== 0) continue;
+        let cnt = 0;
+        for (let n = 1; n <= 9; n++) if (isPlaceable(b, r, c, n)) cnt++;
+        if (cnt < best) { best = cnt; br = r; bc = c; }
+      }
+    }
+    if (br === -1) { count++; return; }  // complete
+    if (best === 0) return;              // dead end
+    for (let n = 1; n <= 9; n++) {
+      if (!isPlaceable(b, br, bc, n)) continue;
+      b[br][bc] = n;
+      solve(b);
+      b[br][bc] = 0;
+    }
+  })(board.map(row => row.slice()));
+  return count;
+}
+
+const CLUES = { easy: 38, medium: 30, hard: 25, expert: 22 };
+
+function buildPuzzle(difficulty) {
+  const sol = emptyBoard();
+  fillSolution(sol);
+  const puzzle = sol.map(r => r.slice());
+  const cells = shuffle([...Array(81).keys()]);
+  let removed = 0;
+  const goal = 81 - CLUES[difficulty];
+  for (const idx of cells) {
+    if (removed >= goal) break;
+    const r = (idx / 9) | 0, c = idx % 9;
+    const val = puzzle[r][c];
+    puzzle[r][c] = 0;
+    if (countSols(puzzle) === 1) {
+      removed++;
+    } else {
+      puzzle[r][c] = val;
+    }
+  }
+  return { puzzle, sol };
+}
+
+// ════════════════════════════════════════════════════════════
+//  PERSISTENCE
+// ════════════════════════════════════════════════════════════
+
+const STATS_KEY = 'sdk_stats_v1';
+const THEME_KEY = 'sdk_theme';
+const DIFFS     = ['easy','medium','hard','expert'];
+
+function loadStats() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STATS_KEY));
+    if (raw) return raw;
+  } catch {}
+  return Object.fromEntries(DIFFS.map(d => [d, { played: 0, won: 0, best: null }]));
+}
+function saveStats(s) { localStorage.setItem(STATS_KEY, JSON.stringify(s)); }
+
+function recordWin(diff, secs) {
+  const s = loadStats();
+  s[diff].played++;
+  s[diff].won++;
+  if (s[diff].best === null || secs < s[diff].best) s[diff].best = secs;
+  saveStats(s);
+  return s[diff].best === secs;
+}
+
+// ════════════════════════════════════════════════════════════
+//  GAME STATE
+// ════════════════════════════════════════════════════════════
+
+const HINT_LIMIT = 3;
+const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+const cellEls = Array.from({ length: 9 }, () => new Array(9));
+
+const G = {
+  puzzle:   emptyBoard(),
+  sol:      emptyBoard(),
+  board:    emptyBoard(),
+  notes:    null,     // [9][9] Set
+  sel:      null,     // [r,c] or null
+  history:  [],
+  future:   [],
+  mistakes: 0,
+  hints:    HINT_LIMIT,
+  secs:     0,
+  notesOn:  false,
+  diff:     'easy',
+  won:      false,
+  busy:     false,
+};
+
+let timerID = null;
+
+function freshNotes() {
+  return Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
+}
+
+// ════════════════════════════════════════════════════════════
+//  TIMER
+// ════════════════════════════════════════════════════════════
+
+function startTimer() {
+  clearInterval(timerID);
+  timerID = setInterval(() => { G.secs++; renderTimer(); }, 1000);
+}
+function stopTimer() { clearInterval(timerID); timerID = null; }
+function fmtTime(s) {
+  const m = (s / 60) | 0;
+  return m + ':' + String(s % 60).padStart(2, '0');
+}
+function renderTimer() {
+  document.getElementById('timerEl').textContent = fmtTime(G.secs);
+}
+
+document.addEventListener('visibilitychange', () => {
+  const onStartScreen = !document.getElementById('startScreen').classList.contains('hidden');
+  if (document.hidden) stopTimer();
+  else if (!G.won && !G.busy && !onStartScreen) startTimer();
+});
+
+// ════════════════════════════════════════════════════════════
+//  UNDO / REDO
+// ════════════════════════════════════════════════════════════
+
+function snapshot() {
+  return {
+    board:    G.board.map(r => r.slice()),
+    notes:    G.notes.map(r => r.map(s => new Set(s))),
+    mistakes: G.mistakes,
+    sel:      G.sel ? G.sel.slice() : null,
+  };
+}
+function pushUndo() {
+  G.history.push(snapshot());
+  G.future = [];
+  syncUndoRedo();
+}
+function applySnap(snap) {
+  G.board    = snap.board;
+  G.notes    = snap.notes;
+  G.mistakes = snap.mistakes;
+  G.sel      = snap.sel;
+}
+function undo() {
+  if (!G.history.length) return;
+  G.future.push(snapshot());
+  applySnap(G.history.pop());
+  syncUndoRedo();
+  render();
+}
+function redo() {
+  if (!G.future.length) return;
+  G.history.push(snapshot());
+  applySnap(G.future.pop());
+  syncUndoRedo();
+  render();
+}
+function syncUndoRedo() {
+  document.getElementById('undoBtn').disabled = !G.history.length;
+  document.getElementById('redoBtn').disabled = !G.future.length;
+}
+
+// ════════════════════════════════════════════════════════════
+//  GRID RENDER
+// ════════════════════════════════════════════════════════════
+
+function buildGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      const el = document.createElement('div');
+      el.className = 'cell';
+      el.dataset.row = r;
+      el.dataset.col = c;
+      el.setAttribute('role', 'gridcell');
+      el.addEventListener('click', () => { G.sel = [r, c]; render(); });
+      cellEls[r][c] = el;
+      grid.appendChild(el);
+    }
+  }
+}
+
+function render() {
+  const sel    = G.sel;
+  const selVal = sel ? G.board[sel[0]][sel[1]] : 0;
+
+  const counts = new Array(10).fill(0);
+  for (let r = 0; r < 9; r++)
+    for (let c = 0; c < 9; c++)
+      if (G.board[r][c]) counts[G.board[r][c]]++;
+
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      const el = cellEls[r][c];
+      const given = G.puzzle[r][c] !== 0;
+      const val   = G.board[r][c];
+      const notes = G.notes[r][c];
+
+      el.className = 'cell' + (given ? ' given' : '');
+      el.innerHTML = '';
+
+      if (sel) {
+        const [sr, sc] = sel;
+        if (r === sr && c === sc) {
+          el.classList.add('selected');
+        } else {
+          const sameBox = (r - r%3 === sr - sr%3) && (c - c%3 === sc - sc%3);
+          if (r === sr || c === sc || sameBox) el.classList.add('peer');
+        }
+        if (selVal && val === selVal) el.classList.add('same-num');
+      }
+
+      if (val !== 0) {
+        el.textContent = val;
+        if (!given) {
+          el.classList.add('player');
+          if (val !== G.sol[r][c]) el.classList.add('wrong');
+        }
+      } else if (notes.size > 0) {
+        el.classList.add('has-notes');
+        for (let n = 1; n <= 9; n++) {
+          const nd = document.createElement('div');
+          nd.className = 'note-d';
+          nd.textContent = notes.has(n) ? n : '';
+          el.appendChild(nd);
+        }
+      }
+    }
+  }
+
+  for (let n = 1; n <= 9; n++) {
+    const nb = document.querySelector(`.num-btn[data-n="${n}"]`);
+    if (nb) nb.classList.toggle('done', counts[n] >= 9);
+  }
+
+  document.getElementById('mistakesEl').textContent = G.mistakes;
+}
+
+// ════════════════════════════════════════════════════════════
+//  INPUT
+// ════════════════════════════════════════════════════════════
+
+function enterNum(n) {
+  if (!G.sel || G.won) return;
+  const [r, c] = G.sel;
+  if (G.puzzle[r][c] !== 0) return;
+
+  if (G.notesOn) {
+    pushUndo();
+    if (G.notes[r][c].has(n)) G.notes[r][c].delete(n);
+    else G.notes[r][c].add(n);
+  } else {
+    if (G.board[r][c] === n) return;
+    pushUndo();
+    G.board[r][c] = n;
+    clearNotes(r, c, n);
+    if (n !== G.sol[r][c]) G.mistakes++;
+    checkWin();
+  }
+  render();
+}
+
+function erase() {
+  if (!G.sel || G.won) return;
+  const [r, c] = G.sel;
+  if (G.puzzle[r][c] !== 0) return;
+  if (G.board[r][c] === 0 && G.notes[r][c].size === 0) return;
+  pushUndo();
+  G.board[r][c] = 0;
+  G.notes[r][c].clear();
+  render();
+}
+
+function clearNotes(row, col, n) {
+  const br = row - row%3, bc = col - col%3;
+  for (let i = 0; i < 9; i++) {
+    G.notes[row][i].delete(n);
+    G.notes[i][col].delete(n);
+  }
+  for (let dr = 0; dr < 3; dr++)
+    for (let dc = 0; dc < 3; dc++)
+      G.notes[br+dr][bc+dc].delete(n);
+}
+
+// ════════════════════════════════════════════════════════════
+//  HINT
+// ════════════════════════════════════════════════════════════
+
+function hint() {
+  if (G.hints <= 0 || G.won) { toast('No hints left'); return; }
+
+  // Prefer selected cell if it needs filling
+  let target = null;
+  if (G.sel) {
+    const [r,c] = G.sel;
+    if (G.puzzle[r][c] === 0 && G.board[r][c] !== G.sol[r][c]) target = [r,c];
+  }
+  if (!target) {
+    const pool = [];
+    for (let r=0; r<9; r++)
+      for (let c=0; c<9; c++)
+        if (G.puzzle[r][c]===0 && G.board[r][c]!==G.sol[r][c]) pool.push([r,c]);
+    if (!pool.length) return;
+    target = pool[(Math.random()*pool.length)|0];
+  }
+
+  pushUndo();
+  const [r,c] = target;
+  G.board[r][c] = G.sol[r][c];
+  G.notes[r][c].clear();
+  clearNotes(r, c, G.sol[r][c]);
+  G.sel = target;
+  G.hints--;
+  document.getElementById('hintBadge').textContent = G.hints;
+  render();
+  checkWin();
+}
+
+// ════════════════════════════════════════════════════════════
+//  WIN
+// ════════════════════════════════════════════════════════════
+
+function checkWin() {
+  for (let r=0; r<9; r++)
+    for (let c=0; c<9; c++)
+      if (G.board[r][c] !== G.sol[r][c]) return;
+  onWin();
+}
+
+function onWin() {
+  G.won = true;
+  stopTimer();
+  const newBest = recordWin(G.diff, G.secs);
+  const grid = document.getElementById('grid');
+  grid.classList.add('pop');
+  grid.addEventListener('animationend', () => grid.classList.remove('pop'), { once: true });
+
+  document.getElementById('winTimeEl').textContent = fmtTime(G.secs);
+  document.getElementById('winTagEl').textContent  = capitalize(G.diff);
+  document.getElementById('winMsgEl').textContent  = newBest ? '🏆 New personal best!' : 'Great solve!';
+  setTimeout(() => openOverlay('winOverlay'), 650);
+}
+
+// ════════════════════════════════════════════════════════════
+//  NEW GAME
+// ════════════════════════════════════════════════════════════
+
+async function newGame(diff) {
+  if (G.busy) return;
+  G.busy = true;
+  stopTimer();
+  closeAll();
+
+  // Reset state
+  G.diff     = diff;
+  G.sel      = null;
+  G.history  = [];
+  G.future   = [];
+  G.mistakes = 0;
+  G.hints    = HINT_LIMIT;
+  G.secs     = 0;
+  G.notesOn  = false;
+  G.won      = false;
+  G.notes    = freshNotes();
+
+  document.getElementById('hintBadge').textContent = HINT_LIMIT;
+  document.getElementById('notesBtn').classList.remove('notes-on');
+  // Keep both diff tab sets in sync
+  document.querySelectorAll('.diff-btn, .ss-diff-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.diff === diff);
+  });
+  syncUndoRedo();
+  renderTimer();
+
+  document.getElementById('loader').classList.add('show');
+  await new Promise(res => setTimeout(res, 20));
+
+  try {
+    const { puzzle, sol } = buildPuzzle(diff);
+    G.puzzle = puzzle;
+    G.sol    = sol;
+    G.board  = puzzle.map(r => r.slice());
+  } finally {
+    document.getElementById('loader').classList.remove('show');
+    G.busy = false;
+  }
+
+  buildGrid();
+  render();
+  startTimer();
+}
+
+// ════════════════════════════════════════════════════════════
+//  THEME
+// ════════════════════════════════════════════════════════════
+
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  const icon = t === 'dark' ? '&#x2600;&#xFE0F;' : '&#x1F319;';
+  document.getElementById('themeBtn').innerHTML   = icon;
+  document.getElementById('ssThemeBtn').innerHTML = icon;
+  localStorage.setItem(THEME_KEY, t);
+}
+function toggleTheme() {
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+function initTheme() {
+  applyTheme(localStorage.getItem(THEME_KEY) || 'light');
+}
+
+// ════════════════════════════════════════════════════════════
+//  STATS
+// ════════════════════════════════════════════════════════════
+
+function openStats() {
+  const s = loadStats();
+  const totPlayed = DIFFS.reduce((a,d) => a + s[d].played, 0);
+  const totWon    = DIFFS.reduce((a,d) => a + s[d].won, 0);
+  const winRate   = totPlayed ? Math.round(totWon/totPlayed*100) : 0;
+
+  document.getElementById('statsCards').innerHTML = `
+    <div class="stat-card"><div class="stat-v">${totPlayed}</div><div class="stat-l">Played</div></div>
+    <div class="stat-card"><div class="stat-v">${totWon}</div><div class="stat-l">Won</div></div>
+    <div class="stat-card"><div class="stat-v">${winRate}%</div><div class="stat-l">Win Rate</div></div>
+    <div class="stat-card"><div class="stat-v">${s[G.diff].played}</div><div class="stat-l">${capitalize(G.diff)} Played</div></div>
+  `;
+  document.getElementById('btRows').innerHTML = DIFFS.map(d =>
+    `<div class="bt-row">
+       <span>${capitalize(d)}</span>
+       <span class="bt-val">${s[d].best !== null ? fmtTime(s[d].best) : '—'}</span>
+     </div>`
+  ).join('');
+  openOverlay('statsOverlay');
+}
+
+// ════════════════════════════════════════════════════════════
+//  MODAL HELPERS
+// ════════════════════════════════════════════════════════════
+
+function openOverlay(id)  { document.getElementById(id).classList.add('open'); }
+function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
+function closeAll()       { document.querySelectorAll('.overlay').forEach(o => o.classList.remove('open')); }
+
+// ════════════════════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════════════════════
+
+let toastTimer = null;
+function toast(msg, ms=2200) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), ms);
+}
+
+// ════════════════════════════════════════════════════════════
+//  BUILD NUMPAD
+// ════════════════════════════════════════════════════════════
+
+function buildNumpad() {
+  const pad = document.getElementById('numpad');
+  for (let n = 1; n <= 9; n++) {
+    const b = document.createElement('button');
+    b.className = 'btn num-btn';
+    b.dataset.n  = n;
+    b.textContent = n;
+    b.setAttribute('aria-label', `Enter ${n}`);
+    b.addEventListener('click', () => enterNum(n));
+    pad.appendChild(b);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  KEYBOARD
+// ════════════════════════════════════════════════════════════
+
+document.addEventListener('keydown', e => {
+  const ctrl = e.ctrlKey || e.metaKey;
+  if (ctrl && e.key === 'z') { e.preventDefault(); undo(); return; }
+  if (ctrl && e.key === 'y') { e.preventDefault(); redo(); return; }
+  if (ctrl) return;
+
+  if (e.key >= '1' && e.key <= '9') { enterNum(+e.key); return; }
+  if (e.key === '0' || e.key === 'Backspace' || e.key === 'Delete') { erase(); return; }
+  if (e.key === 'n' || e.key === 'N') { toggleNotes(); return; }
+  if (e.key === 'h' || e.key === 'H') { hint(); return; }
+
+  if (!G.sel) return;
+  const [r, c] = G.sel;
+  const moves = {
+    ArrowUp:    [r>0 ? r-1 : r, c],
+    ArrowDown:  [r<8 ? r+1 : r, c],
+    ArrowLeft:  [r, c>0 ? c-1 : c],
+    ArrowRight: [r, c<8 ? c+1 : c],
+  };
+  if (moves[e.key]) {
+    e.preventDefault();
+    G.sel = moves[e.key];
+    render();
+  }
+});
+
+// ════════════════════════════════════════════════════════════
+//  EVENT WIRING
+// ════════════════════════════════════════════════════════════
+
+function toggleNotes() {
+  G.notesOn = !G.notesOn;
+  document.getElementById('notesBtn').classList.toggle('notes-on', G.notesOn);
+}
+
+// Difficulty tabs
+document.querySelectorAll('.diff-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.diff-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    newGame(b.dataset.diff);
+  });
+});
+
+// Header
+document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+document.getElementById('statsBtn').addEventListener('click', openStats);
+
+// Controls
+document.getElementById('undoBtn').addEventListener('click', undo);
+document.getElementById('redoBtn').addEventListener('click', redo);
+document.getElementById('notesBtn').addEventListener('click', toggleNotes);
+document.getElementById('hintBtn').addEventListener('click', hint);
+document.getElementById('eraseBtn').addEventListener('click', erase);
+document.getElementById('newGameBtn').addEventListener('click', () => newGame(G.diff));
+
+// Win modal
+document.getElementById('winNewBtn').addEventListener('click',   () => newGame(G.diff));
+document.getElementById('winCloseBtn').addEventListener('click', () => closeOverlay('winOverlay'));
+
+// Stats modal
+document.getElementById('statsCloseBtn').addEventListener('click', () => closeOverlay('statsOverlay'));
+
+// Close overlay on backdrop click
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) closeOverlay(o.id); });
+});
+
+// ════════════════════════════════════════════════════════════
+//  START SCREEN
+// ════════════════════════════════════════════════════════════
+
+function showStartScreen() {
+  stopTimer();
+  closeAll();
+  const ss = document.getElementById('startScreen');
+  ss.classList.remove('hiding', 'hidden');
+  // Sync the start screen diff buttons to current G.diff
+  document.querySelectorAll('.ss-diff-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.diff === G.diff);
+  });
+}
+
+function hideStartScreen() {
+  const ss = document.getElementById('startScreen');
+  ss.classList.add('hiding');
+  ss.addEventListener('transitionend', () => ss.classList.add('hidden'), { once: true });
+}
+
+// Start screen difficulty selection
+document.querySelectorAll('.ss-diff-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.ss-diff-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    G.diff = b.dataset.diff;
+    // Keep in-game tabs in sync
+    document.querySelectorAll('.diff-btn').forEach(x => {
+      x.classList.toggle('active', x.dataset.diff === G.diff);
+    });
+  });
+});
+
+document.getElementById('ssPlayBtn').addEventListener('click', () => {
+  hideStartScreen();
+  newGame(G.diff);
+});
+
+document.getElementById('ssAboutBtn').addEventListener('click', () => openOverlay('aboutOverlay'));
+document.getElementById('ssThemeBtn').addEventListener('click', toggleTheme);
+document.getElementById('exitBtn').addEventListener('click', showStartScreen);
+document.getElementById('aboutCloseBtn').addEventListener('click', () => closeOverlay('aboutOverlay'));
+
+// ════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════
+
+initTheme();
+buildNumpad();
+</script>
+</body>
+</html>
