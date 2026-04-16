@@ -48,45 +48,75 @@
     }
 
     /* ── Color themes ─────────────────────────────────── */
-    [data-color="emerald"] {
-      --accent: #059669; --accent-dim: #ECFDF5;
-      --player: #059669; --hi-cell: #D1FAE5; --hi-same: #A7F3D0;
+    [data-palette="cream"] {
+      --bg: #FAF7F2; --surface: #FFFEF9; --surface2: #F2EDE4;
+      --border: 1px solid #E4D9C8; --border-strong: 2px solid #1A1510;
+      --accent: #B5650D; --accent-dim: #FDF3E3;
+      --player: #B5650D;
+      --hi-cell: #FDE8C8; --hi-peer: #F5EFE6; --hi-same: #F9D4A0;
     }
-    [data-color="emerald"][data-theme="dark"] {
-      --accent: #34D399; --accent-dim: #052e1c;
-      --player: #34D399; --hi-cell: #073d27; --hi-same: #0d5236;
+    [data-palette="cream"][data-theme="dark"] {
+      --bg: #1A1610; --surface: #231E16; --surface2: #2C261C;
+      --border: 1px solid #3C3020; --border-strong: 2px solid #E4D9C8;
+      --accent: #E8974A; --accent-dim: #3A2208;
+      --player: #E8974A;
+      --hi-cell: #3A2810; --hi-peer: #251E14; --hi-same: #4E3518;
     }
-    [data-color="rose"] {
-      --accent: #E11D48; --accent-dim: #FFF1F2;
-      --player: #E11D48; --hi-cell: #FFE4E6; --hi-same: #FECDD3;
+    [data-palette="sage"] {
+      --bg: #F4F7F4; --surface: #FAFCFA; --surface2: #E8EFE8;
+      --border: 1px solid #D4DFCD; --border-strong: 2px solid #141E14;
+      --accent: #3A7D44; --accent-dim: #EAF4EC;
+      --player: #3A7D44;
+      --hi-cell: #C8E6CC; --hi-peer: #EEF5EE; --hi-same: #A8D6AE;
     }
-    [data-color="rose"][data-theme="dark"] {
-      --accent: #FB7185; --accent-dim: #4c0519;
-      --player: #FB7185; --hi-cell: #5a0a1c; --hi-same: #761025;
+    [data-palette="sage"][data-theme="dark"] {
+      --bg: #111A12; --surface: #192019; --surface2: #222922;
+      --border: 1px solid #253425; --border-strong: 2px solid #D4DFCD;
+      --accent: #5CB86A; --accent-dim: #0D2E10;
+      --player: #5CB86A;
+      --hi-cell: #122914; --hi-peer: #1A231A; --hi-same: #1A3D1D;
     }
-    [data-color="amber"] {
-      --accent: #D97706; --accent-dim: #FFFBEB;
-      --player: #D97706; --hi-cell: #FEF3C7; --hi-same: #FDE68A;
+    [data-palette="blush"] {
+      --bg: #FDF6F8; --surface: #FFFAFB; --surface2: #F7EAEE;
+      --border: 1px solid #EDD4DC; --border-strong: 2px solid #1E1014;
+      --accent: #C2527A; --accent-dim: #FCE8EF;
+      --player: #C2527A;
+      --hi-cell: #F9D4DF; --hi-peer: #F9F0F3; --hi-same: #F3B0C3;
     }
-    [data-color="amber"][data-theme="dark"] {
-      --accent: #FBBF24; --accent-dim: #3d1800;
-      --player: #FBBF24; --hi-cell: #3d2800; --hi-same: #5c3d00;
+    [data-palette="blush"][data-theme="dark"] {
+      --bg: #1A1114; --surface: #231820; --surface2: #2C1E27;
+      --border: 1px solid #441828; --border-strong: 2px solid #EDD4DC;
+      --accent: #E8789A; --accent-dim: #3A0E1E;
+      --player: #E8789A;
+      --hi-cell: #3A1222; --hi-peer: #221520; --hi-same: #4E1A2E;
     }
-    [data-color="violet"] {
-      --accent: #7C3AED; --accent-dim: #F5F3FF;
-      --player: #7C3AED; --hi-cell: #EDE9FE; --hi-same: #DDD6FE;
+    [data-palette="sky"] {
+      --bg: #F3F7FB; --surface: #F9FBFE; --surface2: #E4EEF7;
+      --border: 1px solid #C8DCF0; --border-strong: 2px solid #0E1C2E;
+      --accent: #1E6FA8; --accent-dim: #E0F0FA;
+      --player: #1E6FA8;
+      --hi-cell: #BEE0F5; --hi-peer: #EBF3F9; --hi-same: #93CDF0;
     }
-    [data-color="violet"][data-theme="dark"] {
-      --accent: #A78BFA; --accent-dim: #2d1166;
-      --player: #A78BFA; --hi-cell: #2d1266; --hi-same: #3b187d;
+    [data-palette="sky"][data-theme="dark"] {
+      --bg: #0E1620; --surface: #141F2E; --surface2: #1C2A3C;
+      --border: 1px solid #1E3550; --border-strong: 2px solid #C8DCF0;
+      --accent: #4FA8DC; --accent-dim: #0A2240;
+      --player: #4FA8DC;
+      --hi-cell: #0D2E4A; --hi-peer: #141E2A; --hi-same: #153F60;
     }
-    [data-color="cyan"] {
-      --accent: #0891B2; --accent-dim: #ECFEFF;
-      --player: #0891B2; --hi-cell: #CFFAFE; --hi-same: #A5F3FC;
+    [data-palette="dusk"] {
+      --bg: #F7F5FB; --surface: #FCFAFF; --surface2: #EDE8F5;
+      --border: 1px solid #D8CFEE; --border-strong: 2px solid #15101E;
+      --accent: #7048B8; --accent-dim: #EDE6FB;
+      --player: #7048B8;
+      --hi-cell: #D8CCF5; --hi-peer: #F0ECF9; --hi-same: #BFB0EC;
     }
-    [data-color="cyan"][data-theme="dark"] {
-      --accent: #22D3EE; --accent-dim: #052e38;
-      --player: #22D3EE; --hi-cell: #063545; --hi-same: #0a4a5c;
+    [data-palette="dusk"][data-theme="dark"] {
+      --bg: #130F1E; --surface: #1C1829; --surface2: #252038;
+      --border: 1px solid #352550; --border-strong: 2px solid #D8CFEE;
+      --accent: #9C74DE; --accent-dim: #28184E;
+      --player: #9C74DE;
+      --hi-cell: #2A1E52; --hi-peer: #1E1832; --hi-same: #372A66;
     }
 
     /* ── Reset ────────────────────────────────────────── */
@@ -413,34 +443,71 @@
       .footer-row { padding-top: 7px; padding-bottom: 16px; }
     }
 
-    /* ── Color swatches ───────────────────────────────── */
-    .color-swatch {
-      width: 24px; height: 24px; border-radius: 50%;
+    /* ── Palette swatches ────────────────────────────── */
+    .pal-swatch {
+      width: 22px; height: 22px; border-radius: 50%;
       border: none; cursor: pointer; flex-shrink: 0;
       transition: transform 100ms ease, box-shadow 150ms ease;
     }
-    .color-swatch:hover { transform: scale(1.2); }
-    .color-swatch.active { box-shadow: 0 0 0 2.5px var(--bg), 0 0 0 4.5px var(--c); }
+    .pal-swatch:hover { transform: scale(1.18); }
+    .pal-swatch.active { box-shadow: 0 0 0 2.5px var(--bg), 0 0 0 4.5px var(--c); }
 
-    .ss-color-row { display: flex; gap: 8px; margin-bottom: 20px; }
-
-    .color-popover-wrap { position: relative; }
-    .color-popover {
+    /* ── Theme popover (header) ───────────────────────── */
+    .theme-pop-wrap { position: relative; }
+    .theme-pop {
       position: absolute; top: calc(100% + 8px); right: 0;
       background: var(--surface); border: var(--border);
-      border-radius: var(--radius); padding: 8px 10px;
-      display: flex; gap: 7px;
+      border-radius: var(--radius); padding: 12px 12px 10px;
+      min-width: 210px;
       box-shadow: 0 4px 24px rgba(0,0,0,0.14);
       opacity: 0; pointer-events: none;
       transform: translateY(-4px) scale(0.97);
       transition: opacity var(--t), transform var(--t);
       z-index: 50;
     }
-    .color-popover.open { opacity: 1; pointer-events: all; transform: none; }
-    .color-dot {
-      width: 12px; height: 12px; border-radius: 50%;
-      background: var(--accent); display: inline-block;
+    .theme-pop.open { opacity: 1; pointer-events: all; transform: none; }
+    .tp-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
     }
+    .tp-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .tp-pal-label { margin-bottom: 7px; }
+    .tp-mode {
+      display: flex; gap: 3px;
+    }
+    .tp-mode-btn {
+      flex: 1; padding: 5px 6px;
+      background: var(--surface2); color: var(--text-muted);
+      border: none; border-radius: 7px;
+      font-size: 0.73rem; font-weight: 500; cursor: pointer;
+      transition: all var(--t); white-space: nowrap;
+    }
+    .tp-mode-btn.active { background: var(--accent); color: #fff; }
+    .tp-swatches { display: flex; gap: 7px; flex-wrap: wrap; }
+    .pal-dot {
+      width: 11px; height: 11px; border-radius: 50%;
+      background: var(--accent); display: inline-block;
+      transition: background var(--t);
+    }
+
+    /* ── Start screen theme section ──────────────────── */
+    .ss-theme-section { width: 100%; margin-bottom: 22px; }
+    .ss-theme-ctrl-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .ss-mode {
+      display: flex; gap: 3px;
+    }
+    .ss-mode-btn {
+      padding: 5px 10px;
+      background: var(--surface2); color: var(--text-muted);
+      border: none; border-radius: 7px;
+      font-size: 0.75rem; font-weight: 500; cursor: pointer;
+      transition: all var(--t); white-space: nowrap;
+    }
+    .ss-mode-btn.active { background: var(--accent); color: #fff; }
+    .ss-pal-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
     /* ── Start screen ─────────────────────────────────── */
     #startScreen {
@@ -457,9 +524,6 @@
     }
     #startScreen.hidden { display: none; }
 
-    .ss-theme-btn {
-      position: absolute; top: 20px; right: 20px;
-    }
     .ss-inner {
       width: 100%; max-width: 340px;
       display: flex; flex-direction: column; align-items: center;
@@ -552,7 +616,6 @@
 
 <!-- ─── Start screen ──────────────────────────────── -->
 <div id="startScreen">
-  <button class="btn btn-icon ss-theme-btn" id="ssThemeBtn" title="Toggle theme" aria-label="Toggle theme">&#x1F319;</button>
   <div class="ss-inner">
     <div class="ss-logo">Sudoku</div>
     <p class="ss-tagline">Clean. Ad-free. No pop-ups, no accounts,<br>no nonsense. Just the puzzle.</p>
@@ -563,8 +626,16 @@
       <button class="ss-diff-btn"        data-diff="hard">Hard</button>
       <button class="ss-diff-btn"        data-diff="expert">Expert</button>
     </div>
-    <div class="ss-label">Color</div>
-    <div class="ss-color-row" id="ssColorRow"></div>
+    <div class="ss-label">Theme</div>
+    <div class="ss-theme-section">
+      <div class="ss-theme-ctrl-row">
+        <div class="ss-mode" role="group" aria-label="Appearance">
+          <button class="ss-mode-btn active" id="ssModeLight">&#x2600;&#xFE0F; Light</button>
+          <button class="ss-mode-btn"        id="ssModeDark">&#x1F319; Dark</button>
+        </div>
+      </div>
+      <div class="ss-pal-row" id="ssPaletteRow"></div>
+    </div>
     <button class="ss-play" id="ssPlayBtn">&#x25B6;&#xFE0F;&nbsp; Play</button>
     <button class="ss-about-btn" id="ssAboutBtn">About this app</button>
   </div>
@@ -577,12 +648,21 @@
     <button class="btn btn-icon" id="exitBtn" title="Exit to home" aria-label="Exit game">&#x2190;</button>
     <h1>Sudoku</h1>
     <div class="hdr-right">
-      <div class="color-popover-wrap">
-        <button class="btn btn-icon" id="colorBtn" title="Color theme" aria-label="Color theme"><span class="color-dot"></span></button>
-        <div class="color-popover" id="colorPopover"></div>
+      <div class="theme-pop-wrap">
+        <button class="btn btn-icon" id="themeBtn" title="Theme" aria-label="Theme"><span class="pal-dot" id="palDot"></span></button>
+        <div class="theme-pop" id="themePop">
+          <div class="tp-row">
+            <span class="tp-label">Appearance</span>
+            <div class="tp-mode" role="group" aria-label="Appearance">
+              <button class="tp-mode-btn active" id="tpModeLight">&#x2600;&#xFE0F; Light</button>
+              <button class="tp-mode-btn"        id="tpModeDark">&#x1F319; Dark</button>
+            </div>
+          </div>
+          <div class="tp-label tp-pal-label">Palette</div>
+          <div class="tp-swatches" id="hdrPaletteRow"></div>
+        </div>
       </div>
       <button class="btn btn-icon" id="statsBtn" title="Statistics" aria-label="Statistics">&#x1F4CA;</button>
-      <button class="btn btn-icon" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">&#x1F319;</button>
     </div>
   </header>
 
@@ -1177,9 +1257,13 @@ async function newGame(diff) {
 
 function applyTheme(t) {
   document.documentElement.dataset.theme = t;
-  const icon = t === 'dark' ? '&#x2600;&#xFE0F;' : '&#x1F319;';
-  document.getElementById('themeBtn').innerHTML   = icon;
-  document.getElementById('ssThemeBtn').innerHTML = icon;
+  const isDark = t === 'dark';
+  // Update mode buttons in header popover
+  document.getElementById('tpModeLight').classList.toggle('active', !isDark);
+  document.getElementById('tpModeDark').classList.toggle('active',  isDark);
+  // Update mode buttons on start screen
+  document.getElementById('ssModeLight').classList.toggle('active', !isDark);
+  document.getElementById('ssModeDark').classList.toggle('active',  isDark);
   localStorage.setItem(THEME_KEY, t);
 }
 function toggleTheme() {
@@ -1193,60 +1277,70 @@ function initTheme() {
 //  COLOR THEMES
 // ════════════════════════════════════════════════════════════
 
-const COLOR_KEY = 'sdk_color';
-const COLORS = [
-  { id: 'indigo',  hex: '#4F6EF7' },
-  { id: 'emerald', hex: '#059669' },
-  { id: 'rose',    hex: '#E11D48' },
-  { id: 'amber',   hex: '#D97706' },
-  { id: 'violet',  hex: '#7C3AED' },
-  { id: 'cyan',    hex: '#0891B2' },
+const PALETTE_KEY = 'sdk_palette';
+const PALETTES = [
+  { id: 'pebble', name: 'Pebble', hex: '#7B93F9' },
+  { id: 'cream',  name: 'Cream',  hex: '#B5650D' },
+  { id: 'sage',   name: 'Sage',   hex: '#3A7D44' },
+  { id: 'blush',  name: 'Blush',  hex: '#C2527A' },
+  { id: 'sky',    name: 'Sky',    hex: '#1E6FA8' },
+  { id: 'dusk',   name: 'Dusk',   hex: '#7048B8' },
 ];
 
-function buildSwatches() {
+function buildPaletteSwatches() {
   const containers = [
-    document.getElementById('ssColorRow'),
-    document.getElementById('colorPopover'),
+    document.getElementById('ssPaletteRow'),
+    document.getElementById('hdrPaletteRow'),
   ];
   containers.forEach(container => {
-    COLORS.forEach(({ id, hex }) => {
+    PALETTES.forEach(({ id, name, hex }) => {
       const btn = document.createElement('button');
-      btn.className = 'color-swatch';
-      btn.dataset.color = id;
+      btn.className = 'pal-swatch';
+      btn.dataset.palette = id;
       btn.style.cssText = `background:${hex};--c:${hex}`;
-      btn.setAttribute('aria-label', capitalize(id) + ' theme');
+      btn.setAttribute('aria-label', name + ' palette');
       btn.addEventListener('click', e => {
         e.stopPropagation();
-        applyColor(id);
-        document.getElementById('colorPopover').classList.remove('open');
+        applyPalette(id);
+        document.getElementById('themePop').classList.remove('open');
       });
       container.appendChild(btn);
     });
   });
 }
 
-function applyColor(id) {
-  if (id === 'indigo') {
-    delete document.documentElement.dataset.color;
+function applyPalette(id) {
+  if (id === 'pebble') {
+    delete document.documentElement.dataset.palette;
   } else {
-    document.documentElement.dataset.color = id;
+    document.documentElement.dataset.palette = id;
   }
-  localStorage.setItem(COLOR_KEY, id);
-  document.querySelectorAll('.color-swatch').forEach(s => {
-    s.classList.toggle('active', s.dataset.color === id);
+  localStorage.setItem(PALETTE_KEY, id);
+  document.querySelectorAll('.pal-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.palette === id);
   });
+  // Update header dot to show current palette accent color
+  const pal = PALETTES.find(p => p.id === id) || PALETTES[0];
+  document.getElementById('palDot').style.background = pal.hex;
 }
 
-function initColor() {
-  applyColor(localStorage.getItem(COLOR_KEY) || 'indigo');
+function initPalette() {
+  // Migrate from old sdk_color key if present
+  let saved = localStorage.getItem(PALETTE_KEY);
+  if (!saved) {
+    const colorMap = { indigo:'pebble', emerald:'sage', rose:'blush', amber:'cream', violet:'dusk', cyan:'sky' };
+    const old = localStorage.getItem('sdk_color');
+    saved = (old && colorMap[old]) || 'pebble';
+  }
+  applyPalette(saved);
 }
 
-document.getElementById('colorBtn').addEventListener('click', e => {
+document.getElementById('themeBtn').addEventListener('click', e => {
   e.stopPropagation();
-  document.getElementById('colorPopover').classList.toggle('open');
+  document.getElementById('themePop').classList.toggle('open');
 });
 document.addEventListener('click', () => {
-  document.getElementById('colorPopover').classList.remove('open');
+  document.getElementById('themePop').classList.remove('open');
 });
 
 // ════════════════════════════════════════════════════════════
@@ -1364,7 +1458,8 @@ document.querySelectorAll('.diff-btn').forEach(b => {
 });
 
 // Header
-document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+document.getElementById('tpModeLight').addEventListener('click', e => { e.stopPropagation(); applyTheme('light'); });
+document.getElementById('tpModeDark').addEventListener('click',  e => { e.stopPropagation(); applyTheme('dark');  });
 document.getElementById('statsBtn').addEventListener('click', openStats);
 
 // Controls
@@ -1429,7 +1524,8 @@ document.getElementById('ssPlayBtn').addEventListener('click', () => {
 });
 
 document.getElementById('ssAboutBtn').addEventListener('click', () => openOverlay('aboutOverlay'));
-document.getElementById('ssThemeBtn').addEventListener('click', toggleTheme);
+document.getElementById('ssModeLight').addEventListener('click', () => applyTheme('light'));
+document.getElementById('ssModeDark').addEventListener('click',  () => applyTheme('dark'));
 document.getElementById('exitBtn').addEventListener('click', showStartScreen);
 document.getElementById('aboutCloseBtn').addEventListener('click', () => closeOverlay('aboutOverlay'));
 
@@ -1438,8 +1534,8 @@ document.getElementById('aboutCloseBtn').addEventListener('click', () => closeOv
 // ════════════════════════════════════════════════════════════
 
 initTheme();
-buildSwatches();
-initColor();
+buildPaletteSwatches();
+initPalette();
 buildNumpad();
 </script>
 </body>
