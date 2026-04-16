@@ -47,6 +47,48 @@
       --note-col:     #666360;
     }
 
+    /* ── Color themes ─────────────────────────────────── */
+    [data-color="emerald"] {
+      --accent: #059669; --accent-dim: #ECFDF5;
+      --player: #059669; --hi-cell: #D1FAE5; --hi-same: #A7F3D0;
+    }
+    [data-color="emerald"][data-theme="dark"] {
+      --accent: #34D399; --accent-dim: #052e1c;
+      --player: #34D399; --hi-cell: #073d27; --hi-same: #0d5236;
+    }
+    [data-color="rose"] {
+      --accent: #E11D48; --accent-dim: #FFF1F2;
+      --player: #E11D48; --hi-cell: #FFE4E6; --hi-same: #FECDD3;
+    }
+    [data-color="rose"][data-theme="dark"] {
+      --accent: #FB7185; --accent-dim: #4c0519;
+      --player: #FB7185; --hi-cell: #5a0a1c; --hi-same: #761025;
+    }
+    [data-color="amber"] {
+      --accent: #D97706; --accent-dim: #FFFBEB;
+      --player: #D97706; --hi-cell: #FEF3C7; --hi-same: #FDE68A;
+    }
+    [data-color="amber"][data-theme="dark"] {
+      --accent: #FBBF24; --accent-dim: #3d1800;
+      --player: #FBBF24; --hi-cell: #3d2800; --hi-same: #5c3d00;
+    }
+    [data-color="violet"] {
+      --accent: #7C3AED; --accent-dim: #F5F3FF;
+      --player: #7C3AED; --hi-cell: #EDE9FE; --hi-same: #DDD6FE;
+    }
+    [data-color="violet"][data-theme="dark"] {
+      --accent: #A78BFA; --accent-dim: #2d1166;
+      --player: #A78BFA; --hi-cell: #2d1266; --hi-same: #3b187d;
+    }
+    [data-color="cyan"] {
+      --accent: #0891B2; --accent-dim: #ECFEFF;
+      --player: #0891B2; --hi-cell: #CFFAFE; --hi-same: #A5F3FC;
+    }
+    [data-color="cyan"][data-theme="dark"] {
+      --accent: #22D3EE; --accent-dim: #052e38;
+      --player: #22D3EE; --hi-cell: #063545; --hi-same: #0a4a5c;
+    }
+
     /* ── Reset ────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { font-size: 16px; }
@@ -325,6 +367,30 @@
     }
     .pop { animation: gridPop 0.45s ease forwards; }
 
+    /* ── Pause overlay ────────────────────────────────── */
+    #pauseOverlay {
+      position: absolute; inset: 0;
+      background: var(--surface);
+      border-radius: 4px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 6px;
+      opacity: 0; pointer-events: none;
+      transition: opacity var(--t);
+      z-index: 10;
+      cursor: pointer;
+    }
+    #pauseOverlay.show { opacity: 1; pointer-events: all; }
+    .pause-icon  { font-size: 2rem; line-height: 1; }
+    .pause-label { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .pause-hint  { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+    .s-pause {
+      padding: 2px 6px; font-size: 0.8rem;
+      background: transparent; margin-left: 3px;
+    }
+    .s-pause:hover { background: var(--surface2); }
+
     /* ── Loading overlay ──────────────────────────────── */
     #loader {
       position: absolute; inset: 0;
@@ -345,6 +411,35 @@
       #numpad { padding-top: 7px; gap: 4px; }
       .status-bar { padding-top: 7px; }
       .footer-row { padding-top: 7px; padding-bottom: 16px; }
+    }
+
+    /* ── Color swatches ───────────────────────────────── */
+    .color-swatch {
+      width: 24px; height: 24px; border-radius: 50%;
+      border: none; cursor: pointer; flex-shrink: 0;
+      transition: transform 100ms ease, box-shadow 150ms ease;
+    }
+    .color-swatch:hover { transform: scale(1.2); }
+    .color-swatch.active { box-shadow: 0 0 0 2.5px var(--bg), 0 0 0 4.5px var(--c); }
+
+    .ss-color-row { display: flex; gap: 8px; margin-bottom: 20px; }
+
+    .color-popover-wrap { position: relative; }
+    .color-popover {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--surface); border: var(--border);
+      border-radius: var(--radius); padding: 8px 10px;
+      display: flex; gap: 7px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.14);
+      opacity: 0; pointer-events: none;
+      transform: translateY(-4px) scale(0.97);
+      transition: opacity var(--t), transform var(--t);
+      z-index: 50;
+    }
+    .color-popover.open { opacity: 1; pointer-events: all; transform: none; }
+    .color-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--accent); display: inline-block;
     }
 
     /* ── Start screen ─────────────────────────────────── */
@@ -468,6 +563,8 @@
       <button class="ss-diff-btn"        data-diff="hard">Hard</button>
       <button class="ss-diff-btn"        data-diff="expert">Expert</button>
     </div>
+    <div class="ss-label">Color</div>
+    <div class="ss-color-row" id="ssColorRow"></div>
     <button class="ss-play" id="ssPlayBtn">&#x25B6;&#xFE0F;&nbsp; Play</button>
     <button class="ss-about-btn" id="ssAboutBtn">About this app</button>
   </div>
@@ -480,6 +577,10 @@
     <button class="btn btn-icon" id="exitBtn" title="Exit to home" aria-label="Exit game">&#x2190;</button>
     <h1>Sudoku</h1>
     <div class="hdr-right">
+      <div class="color-popover-wrap">
+        <button class="btn btn-icon" id="colorBtn" title="Color theme" aria-label="Color theme"><span class="color-dot"></span></button>
+        <div class="color-popover" id="colorPopover"></div>
+      </div>
       <button class="btn btn-icon" id="statsBtn" title="Statistics" aria-label="Statistics">&#x1F4CA;</button>
       <button class="btn btn-icon" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">&#x1F319;</button>
     </div>
@@ -495,6 +596,11 @@
   <div class="grid-wrap">
     <div id="grid" role="grid" aria-label="Sudoku board"></div>
     <div id="loader">Generating&hellip;</div>
+    <div id="pauseOverlay" aria-label="Game paused" role="status">
+      <div class="pause-icon">&#x23F8;&#xFE0F;</div>
+      <div class="pause-label">Paused</div>
+      <div class="pause-hint">Click or press P to resume</div>
+    </div>
   </div>
 
   <div class="ctrl-strip">
@@ -511,7 +617,10 @@
 
   <div class="status-bar">
     <div class="status-left">
-      <span class="s-item">&#x23F1; <span class="s-timer" id="timerEl">0:00</span></span>
+      <span class="s-item">
+        &#x23F1; <span class="s-timer" id="timerEl">0:00</span>
+        <button class="btn s-pause" id="pauseBtn" title="Pause (P)" aria-label="Pause">&#x23F8;</button>
+      </span>
       <span class="s-item">&#x2715; <span class="s-mistakes" id="mistakesEl">0</span></span>
     </div>
     <button class="btn btn-accent" id="newGameBtn">New Game</button>
@@ -730,6 +839,7 @@ const G = {
   diff:     'easy',
   won:      false,
   busy:     false,
+  paused:   false,
 };
 
 let timerID = null;
@@ -758,8 +868,32 @@ function renderTimer() {
 document.addEventListener('visibilitychange', () => {
   const onStartScreen = !document.getElementById('startScreen').classList.contains('hidden');
   if (document.hidden) stopTimer();
-  else if (!G.won && !G.busy && !onStartScreen) startTimer();
+  else if (!G.won && !G.busy && !G.paused && !onStartScreen) startTimer();
 });
+
+// ════════════════════════════════════════════════════════════
+//  PAUSE / RESUME
+// ════════════════════════════════════════════════════════════
+
+function pause() {
+  if (G.won || G.busy || G.paused) return;
+  G.paused = true;
+  stopTimer();
+  document.getElementById('pauseOverlay').classList.add('show');
+  document.getElementById('pauseBtn').innerHTML = '&#x25B6;';
+  document.getElementById('pauseBtn').setAttribute('title', 'Resume (P)');
+}
+
+function resume() {
+  if (!G.paused) return;
+  G.paused = false;
+  document.getElementById('pauseOverlay').classList.remove('show');
+  document.getElementById('pauseBtn').innerHTML = '&#x23F8;';
+  document.getElementById('pauseBtn').setAttribute('title', 'Pause (P)');
+  startTimer();
+}
+
+function togglePause() { G.paused ? resume() : pause(); }
 
 // ════════════════════════════════════════════════════════════
 //  UNDO / REDO
@@ -785,14 +919,14 @@ function applySnap(snap) {
   G.sel      = snap.sel;
 }
 function undo() {
-  if (!G.history.length) return;
+  if (!G.history.length || G.paused) return;
   G.future.push(snapshot());
   applySnap(G.history.pop());
   syncUndoRedo();
   render();
 }
 function redo() {
-  if (!G.future.length) return;
+  if (!G.future.length || G.paused) return;
   G.history.push(snapshot());
   applySnap(G.future.pop());
   syncUndoRedo();
@@ -885,7 +1019,7 @@ function render() {
 // ════════════════════════════════════════════════════════════
 
 function enterNum(n) {
-  if (!G.sel || G.won) return;
+  if (!G.sel || G.won || G.paused) return;
   const [r, c] = G.sel;
   if (G.puzzle[r][c] !== 0) return;
 
@@ -905,7 +1039,7 @@ function enterNum(n) {
 }
 
 function erase() {
-  if (!G.sel || G.won) return;
+  if (!G.sel || G.won || G.paused) return;
   const [r, c] = G.sel;
   if (G.puzzle[r][c] !== 0) return;
   if (G.board[r][c] === 0 && G.notes[r][c].size === 0) return;
@@ -1005,10 +1139,13 @@ async function newGame(diff) {
   G.secs     = 0;
   G.notesOn  = false;
   G.won      = false;
+  G.paused   = false;
   G.notes    = freshNotes();
 
   document.getElementById('hintBadge').textContent = HINT_LIMIT;
   document.getElementById('notesBtn').classList.remove('notes-on');
+  document.getElementById('pauseOverlay').classList.remove('show');
+  document.getElementById('pauseBtn').innerHTML = '&#x23F8;';
   // Keep both diff tab sets in sync
   document.querySelectorAll('.diff-btn, .ss-diff-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.diff === diff);
@@ -1051,6 +1188,66 @@ function toggleTheme() {
 function initTheme() {
   applyTheme(localStorage.getItem(THEME_KEY) || 'light');
 }
+
+// ════════════════════════════════════════════════════════════
+//  COLOR THEMES
+// ════════════════════════════════════════════════════════════
+
+const COLOR_KEY = 'sdk_color';
+const COLORS = [
+  { id: 'indigo',  hex: '#4F6EF7' },
+  { id: 'emerald', hex: '#059669' },
+  { id: 'rose',    hex: '#E11D48' },
+  { id: 'amber',   hex: '#D97706' },
+  { id: 'violet',  hex: '#7C3AED' },
+  { id: 'cyan',    hex: '#0891B2' },
+];
+
+function buildSwatches() {
+  const containers = [
+    document.getElementById('ssColorRow'),
+    document.getElementById('colorPopover'),
+  ];
+  containers.forEach(container => {
+    COLORS.forEach(({ id, hex }) => {
+      const btn = document.createElement('button');
+      btn.className = 'color-swatch';
+      btn.dataset.color = id;
+      btn.style.cssText = `background:${hex};--c:${hex}`;
+      btn.setAttribute('aria-label', capitalize(id) + ' theme');
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        applyColor(id);
+        document.getElementById('colorPopover').classList.remove('open');
+      });
+      container.appendChild(btn);
+    });
+  });
+}
+
+function applyColor(id) {
+  if (id === 'indigo') {
+    delete document.documentElement.dataset.color;
+  } else {
+    document.documentElement.dataset.color = id;
+  }
+  localStorage.setItem(COLOR_KEY, id);
+  document.querySelectorAll('.color-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.color === id);
+  });
+}
+
+function initColor() {
+  applyColor(localStorage.getItem(COLOR_KEY) || 'indigo');
+}
+
+document.getElementById('colorBtn').addEventListener('click', e => {
+  e.stopPropagation();
+  document.getElementById('colorPopover').classList.toggle('open');
+});
+document.addEventListener('click', () => {
+  document.getElementById('colorPopover').classList.remove('open');
+});
 
 // ════════════════════════════════════════════════════════════
 //  STATS
@@ -1125,6 +1322,9 @@ document.addEventListener('keydown', e => {
   if (ctrl && e.key === 'y') { e.preventDefault(); redo(); return; }
   if (ctrl) return;
 
+  if (e.key === 'p' || e.key === 'P' || e.key === ' ') { e.preventDefault(); togglePause(); return; }
+  if (G.paused) return;
+
   if (e.key >= '1' && e.key <= '9') { enterNum(+e.key); return; }
   if (e.key === '0' || e.key === 'Backspace' || e.key === 'Delete') { erase(); return; }
   if (e.key === 'n' || e.key === 'N') { toggleNotes(); return; }
@@ -1168,6 +1368,8 @@ document.getElementById('themeBtn').addEventListener('click', toggleTheme);
 document.getElementById('statsBtn').addEventListener('click', openStats);
 
 // Controls
+document.getElementById('pauseBtn').addEventListener('click', togglePause);
+document.getElementById('pauseOverlay').addEventListener('click', resume);
 document.getElementById('undoBtn').addEventListener('click', undo);
 document.getElementById('redoBtn').addEventListener('click', redo);
 document.getElementById('notesBtn').addEventListener('click', toggleNotes);
@@ -1236,6 +1438,8 @@ document.getElementById('aboutCloseBtn').addEventListener('click', () => closeOv
 // ════════════════════════════════════════════════════════════
 
 initTheme();
+buildSwatches();
+initColor();
 buildNumpad();
 </script>
 </body>
