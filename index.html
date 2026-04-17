@@ -4,6 +4,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Sudoku</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" id="themeColorMeta" content="#4F6EF7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Sudoku">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <script>
+  /* Generate crisp PNG apple-touch-icon via canvas for best iOS compatibility */
+  (function(){
+    try{
+      var s=180,cv=document.createElement('canvas');
+      cv.width=cv.height=s;
+      var c=cv.getContext('2d');
+      var gr=c.createLinearGradient(0,0,s,s);
+      gr.addColorStop(0,'#7B93F9');gr.addColorStop(1,'#3A55F0');
+      c.beginPath();c.roundRect(0,0,s,s,s*0.2);c.fillStyle=gr;c.fill();
+      var p=Math.round(s*0.148),g=s-p*2,cl=g/3;
+      c.strokeStyle='rgba(255,255,255,.28)';c.lineWidth=Math.max(1,s*.011);
+      for(var i=1;i<3;i++){
+        c.beginPath();c.moveTo(p+i*cl,p);c.lineTo(p+i*cl,p+g);c.stroke();
+        c.beginPath();c.moveTo(p,p+i*cl);c.lineTo(p+g,p+i*cl);c.stroke();
+      }
+      c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=Math.max(2,s*.026);
+      c.strokeRect(p,p,g,g);
+      c.fillStyle='#fff';c.textAlign='center';c.textBaseline='middle';
+      c.font='800 '+Math.round(s*.183)+'px -apple-system,BlinkMacSystemFont,sans-serif';
+      [[0,0,'3'],[2,0,'7'],[0,2,'4'],[2,2,'1']].forEach(function(d){
+        c.fillText(d[2],p+d[0]*cl+cl/2,p+d[1]*cl+cl/2);
+      });
+      var l=document.createElement('link');
+      l.rel='apple-touch-icon';l.sizes='180x180';
+      l.href=cv.toDataURL('image/png');document.head.appendChild(l);
+    }catch(e){}
+  })();
+  </script>
   <style>
     /* ── Tokens ───────────────────────────────────────── */
     :root {
@@ -1271,6 +1306,12 @@ async function newGame(diff) {
 //  THEME
 // ════════════════════════════════════════════════════════════
 
+function updateThemeColor() {
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+  const el = document.getElementById('themeColorMeta');
+  if (el && accent) el.content = accent;
+}
+
 function applyTheme(t) {
   document.documentElement.dataset.theme = t;
   const isDark = t === 'dark';
@@ -1284,6 +1325,7 @@ function applyTheme(t) {
   document.getElementById('ssThemeIcon').innerHTML  = isDark ? '&#x1F319;' : '&#x2600;&#xFE0F;';
   document.getElementById('ssThemeLabel').textContent = isDark ? 'Dark' : 'Light';
   localStorage.setItem(THEME_KEY, t);
+  updateThemeColor();
 }
 function toggleTheme() {
   applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
@@ -1341,6 +1383,7 @@ function applyPalette(id) {
   // Update header dot to show current palette accent color
   const pal = PALETTES.find(p => p.id === id) || PALETTES[0];
   document.getElementById('palDot').style.background = pal.hex;
+  updateThemeColor();
 }
 
 function initPalette() {
@@ -1561,6 +1604,15 @@ initTheme();
 buildPaletteSwatches();
 initPalette();
 buildNumpad();
+
+// ════════════════════════════════════════════════════════════
+//  SERVICE WORKER
+// ════════════════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>

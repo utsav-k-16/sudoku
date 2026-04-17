@@ -1,0 +1,27 @@
+{
+  "name": "Sudoku",
+  "short_name": "Sudoku",
+  "description": "Clean, ad-free Sudoku. No pop-ups, no accounts, no nonsense.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#4F6EF7",
+  "theme_color": "#4F6EF7",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7B93F9"/>
+      <stop offset="100%" stop-color="#3A55F0"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- Inner grid dividers -->
+  <line x1="195" y1="76" x2="195" y2="436" stroke="white" stroke-width="5" stroke-opacity="0.28"/>
+  <line x1="317" y1="76" x2="317" y2="436" stroke="white" stroke-width="5" stroke-opacity="0.28"/>
+  <line x1="76"  y1="195" x2="436" y2="195" stroke="white" stroke-width="5" stroke-opacity="0.28"/>
+  <line x1="76"  y1="317" x2="436" y2="317" stroke="white" stroke-width="5" stroke-opacity="0.28"/>
+  <!-- Outer border -->
+  <rect x="76" y="76" width="360" height="360" rx="10" fill="none" stroke="white" stroke-width="13" stroke-opacity="0.9"/>
+  <!-- Numbers — 4 corner cells -->
+  <text x="136" y="136" font-family="-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="94" fill="white" text-anchor="middle" dominant-baseline="central">3</text>
+  <text x="376" y="136" font-family="-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="94" fill="white" text-anchor="middle" dominant-baseline="central">7</text>
+  <text x="136" y="376" font-family="-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="94" fill="white" text-anchor="middle" dominant-baseline="central">4</text>
+  <text x="376" y="376" font-family="-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="94" fill="white" text-anchor="middle" dominant-baseline="central">1</text>
+</svg>

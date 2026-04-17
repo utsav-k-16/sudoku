@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7B93F9"/>
+      <stop offset="100%" stop-color="#3A55F0"/>
+    </linearGradient>
+  </defs>
+  <!-- Full-bleed background (no rounded corners — OS applies its own mask) -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- Content kept within central 80% safe zone (approx 102–410) -->
+  <!-- Inner grid dividers -->
+  <line x1="214" y1="102" x2="214" y2="410" stroke="white" stroke-width="5" stroke-opacity="0.28"/>
+  <line x1="308" y1="102" x2="308" y2="410" stroke="white" stroke-width="5" stroke-opacity="0.28"/>
+  <line x1="102" y1="214" x2="410" y2="214" stroke="white" stroke-width="5" stroke-opacity="0.28"/>
+  <line x1="102" y1="308" x2="410" y2="308" stroke="white" stroke-width="5" stroke-opacity="0.28"/>
+  <!-- Outer border -->
+  <rect x="102" y="102" width="308" height="308" rx="8" fill="none" stroke="white" stroke-width="12" stroke-opacity="0.9"/>
+  <!-- Numbers — 4 corner cells -->
+  <text x="158" y="158" font-family="-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="78" fill="white" text-anchor="middle" dominant-baseline="central">3</text>
+  <text x="354" y="158" font-family="-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="78" fill="white" text-anchor="middle" dominant-baseline="central">7</text>
+  <text x="158" y="354" font-family="-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="78" fill="white" text-anchor="middle" dominant-baseline="central">4</text>
+  <text x="354" y="354" font-family="-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif" font-weight="800" font-size="78" fill="white" text-anchor="middle" dominant-baseline="central">1</text>
+</svg>
