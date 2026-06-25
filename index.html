@@ -467,15 +467,22 @@
       font-size: 0.85rem; color: var(--text-muted);
     }
     #loader.show { opacity: 1; pointer-events: all; }
-    .grid-wrap { position: relative; }
+    .grid-wrap {
+      position: relative;
+      /* Shrink grid on short screens so numpad stays visible */
+      width: min(100%, calc(100dvh - 262px));
+      margin-left: auto;
+      margin-right: auto;
+    }
 
-    /* ── Responsive: compact on very small screens ────── */
+    /* ── Responsive: compact on short screens ───────── */
     @media (max-height: 700px) {
       header { padding-top: 12px; padding-bottom: 10px; }
       .ctrl-strip { padding-top: 8px; }
       #numpad { padding-top: 7px; gap: 4px; }
       .status-bar { padding-top: 7px; }
       .footer-row { padding-top: 7px; padding-bottom: 16px; }
+      .grid-wrap { width: min(100%, calc(100dvh - 230px)); }
     }
 
     /* ── Palette swatches ────────────────────────────── */
