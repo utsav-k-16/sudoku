@@ -615,6 +615,26 @@
     }
     .ss-about-btn:hover { color: var(--text); }
 
+    /* ── Digit colors (accessibility / dyscalculia mode) ─── */
+    [data-colormode] .cell[data-val="1"] { color: #E53935; }
+    [data-colormode] .cell[data-val="2"] { color: #F4511E; }
+    [data-colormode] .cell[data-val="3"] { color: #F9A825; }
+    [data-colormode] .cell[data-val="4"] { color: #388E3C; }
+    [data-colormode] .cell[data-val="5"] { color: #0097A7; }
+    [data-colormode] .cell[data-val="6"] { color: #1976D2; }
+    [data-colormode] .cell[data-val="7"] { color: #7B1FA2; }
+    [data-colormode] .cell[data-val="8"] { color: #C2185B; }
+    [data-colormode] .cell[data-val="9"] { color: #795548; }
+    [data-colormode] .num-btn[data-n="1"] { color: #E53935; }
+    [data-colormode] .num-btn[data-n="2"] { color: #F4511E; }
+    [data-colormode] .num-btn[data-n="3"] { color: #F9A825; }
+    [data-colormode] .num-btn[data-n="4"] { color: #388E3C; }
+    [data-colormode] .num-btn[data-n="5"] { color: #0097A7; }
+    [data-colormode] .num-btn[data-n="6"] { color: #1976D2; }
+    [data-colormode] .num-btn[data-n="7"] { color: #7B1FA2; }
+    [data-colormode] .num-btn[data-n="8"] { color: #C2185B; }
+    [data-colormode] .num-btn[data-n="9"] { color: #795548; }
+
     /* ── About modal ──────────────────────────────────── */
     #aboutOverlay .modal {
       max-height: 82vh; overflow-y: auto; text-align: left;
@@ -675,6 +695,13 @@
       </div>
       <div class="tp-label tp-pal-label">Palette</div>
       <div class="tp-swatches" id="ssPaletteRow"></div>
+      <div class="tp-row" style="margin-top:10px;margin-bottom:0">
+        <span class="tp-label">Color digits</span>
+        <div class="tp-mode" role="group" aria-label="Color digits">
+          <button class="tp-mode-btn active" id="ssColorOff">Off</button>
+          <button class="tp-mode-btn"        id="ssColorOn">On</button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="ss-inner">
@@ -711,6 +738,13 @@
           </div>
           <div class="tp-label tp-pal-label">Palette</div>
           <div class="tp-swatches" id="hdrPaletteRow"></div>
+          <div class="tp-row" style="margin-top:10px;margin-bottom:0">
+            <span class="tp-label">Color digits</span>
+            <div class="tp-mode" role="group" aria-label="Color digits">
+              <button class="tp-mode-btn active" id="tpColorOff">Off</button>
+              <button class="tp-mode-btn"        id="tpColorOn">On</button>
+            </div>
+          </div>
         </div>
       </div>
       <button class="btn btn-icon" id="statsBtn" title="Statistics" aria-label="Statistics">&#x1F4CA;</button>
@@ -1107,6 +1141,8 @@ function render() {
 
       el.className = 'cell' + (given ? ' given' : '');
       el.innerHTML = '';
+      if (val !== 0) el.dataset.val = val;
+      else delete el.dataset.val;
 
       if (sel) {
         const [sr, sc] = sel;
@@ -1397,6 +1433,30 @@ function initPalette() {
   applyPalette(saved);
 }
 
+// ════════════════════════════════════════════════════════════
+//  COLOR DIGITS MODE
+// ════════════════════════════════════════════════════════════
+
+const COLOR_MODE_KEY = 'sdk_colormode';
+
+function applyColorMode(on) {
+  if (on) document.documentElement.dataset.colormode = 'on';
+  else delete document.documentElement.dataset.colormode;
+  localStorage.setItem(COLOR_MODE_KEY, on ? '1' : '0');
+  ['tpColorOff', 'ssColorOff'].forEach(id => document.getElementById(id).classList.toggle('active', !on));
+  ['tpColorOn',  'ssColorOn' ].forEach(id => document.getElementById(id).classList.toggle('active',  on));
+  render();
+}
+
+function initColorMode() {
+  applyColorMode(localStorage.getItem(COLOR_MODE_KEY) === '1');
+}
+
+document.getElementById('tpColorOff').addEventListener('click', e => { e.stopPropagation(); applyColorMode(false); });
+document.getElementById('tpColorOn').addEventListener('click',  e => { e.stopPropagation(); applyColorMode(true);  });
+document.getElementById('ssColorOff').addEventListener('click', e => { e.stopPropagation(); applyColorMode(false); });
+document.getElementById('ssColorOn').addEventListener('click',  e => { e.stopPropagation(); applyColorMode(true);  });
+
 document.getElementById('themeBtn').addEventListener('click', e => {
   e.stopPropagation();
   document.getElementById('themePop').classList.toggle('open');
@@ -1603,6 +1663,7 @@ document.getElementById('aboutCloseBtn').addEventListener('click', () => closeOv
 initTheme();
 buildPaletteSwatches();
 initPalette();
+initColorMode();
 buildNumpad();
 
 // ════════════════════════════════════════════════════════════
