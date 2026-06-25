@@ -1452,7 +1452,6 @@ function applyColorMode(on) {
   localStorage.setItem(COLOR_MODE_KEY, on ? '1' : '0');
   ['tpColorOff', 'ssColorOff'].forEach(id => document.getElementById(id).classList.toggle('active', !on));
   ['tpColorOn',  'ssColorOn' ].forEach(id => document.getElementById(id).classList.toggle('active',  on));
-  render();
 }
 
 function initColorMode() {
